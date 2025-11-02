@@ -6,12 +6,12 @@ import {
 } from '@nestjs/common';
 import { IUserService } from './interface/userServiceInterface';
 import { CreateUserDTO, UpdateUserDTO } from './dto';
-import { UserEntity } from './entity/userEntity';
+import { UserEntity } from './entity/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Logger } from 'winston';
 import { InjectLogger } from 'src/common/Logger';
-import { AuthProvider } from './entity/userEntity';
+import { AuthProvider } from './entity/user.entity';
 // This should be a real class/interface representing a user entity
 export type User = any;
 
@@ -31,7 +31,8 @@ export class UsersService implements IUserService {
         password: userPassword,
         emailVerified,
         googleId,
-        authProvider
+        authProvider,
+        profilePicture
       } = userData;
       const email = userEmail.toLowerCase();
 
@@ -48,6 +49,7 @@ export class UsersService implements IUserService {
         this.userRepository.create({
           email,
           username,
+          profilePicture,
           emailVerified: emailVerified || false,
           googleId: googleId ?? undefined,
           provider: authProvider || AuthProvider.LOCAL,
@@ -81,7 +83,7 @@ export class UsersService implements IUserService {
     }
   }
 
-  async getUserByEmail(email: string): Promise<UserEntity | null> {
+  async getUserByEmail(email: string): Promise<UserEntity> {
     try {
       return await this.userRepository
         .createQueryBuilder('user')
@@ -133,6 +135,67 @@ export class UsersService implements IUserService {
     }
   }
 
+  async updateLastLogin(userId: string): Promise<void> {
+    try {
+      await this.userRepository
+        .createQueryBuilder()
+        .update(UserEntity)
+        .set({ lastLogin: new Date() })
+        .where('id = :id', { id: userId })
+        .execute();
+    } catch (error) {
+      this.logger.error(
+        `Error updating last login for user: ${userId}.${error.message}`,
+        error.stack
+      );
+      throw new InternalServerErrorException('Error updating last login');
+    }
+  }
+
+  async getUserWithGoogleId(googleId: string): Promise<UserEntity> {
+    try {
+      return await this.userRepository
+        .createQueryBuilder('user')
+        .where('user.googleId = :googleId', { googleId })
+        .getOneOrFail();
+    } catch (error) {
+      this.logger.error(
+        `Error fetching user by Google ID ${error.message}`,
+        error.stack
+      );
+      throw new InternalServerErrorException(
+        'Error fetching user by Google ID'
+      );
+    }
+  }
+
+  async updateUserGoogleInfo(
+    userId: string,
+    googleId: string,
+    provider: AuthProvider
+  ): Promise<UserEntity> {
+    try {
+      const updatedResult = await this.userRepository
+        .createQueryBuilder()
+        .update(UserEntity)
+        .set({ googleId, isGoogleAuth: true, provider })
+        .where('id = :id', { id: userId })
+        .execute();
+      if (!updatedResult.raw[0]) {
+        throw new InternalServerErrorException(
+          'User update failed. User not found'
+        );
+      }
+      const user = await this.getUserById(userId);
+      return user;
+    } catch (error) {
+      this.logger.error(
+        `Error updating Google info for user ${error.message}`,
+        error.stack
+      );
+      throw new InternalServerErrorException('Error updating Google info');
+    }
+  }
   // deleteUser(userId: string): Promise<void> {
   //   throw new Error('Method not implemented.');
   // }

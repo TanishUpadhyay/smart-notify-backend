@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import {
   IsBoolean,
   IsEmail,
@@ -8,7 +7,7 @@ import {
   IsString,
   MinLength
 } from 'class-validator';
-import { AuthProvider } from '../entity/userEntity';
+import { AuthProvider } from '../entity/user.entity';
 
 export class CreateUserDTO {
   @IsNotEmpty()
@@ -26,7 +25,8 @@ export class CreateUserDTO {
   @IsNotEmpty()
   @IsString()
   @MinLength(6)
-  password: string;
+  @IsOptional() //optional for OAuth users
+  password?: string;
 
   @IsBoolean()
   @IsOptional()
@@ -39,4 +39,8 @@ export class CreateUserDTO {
   @IsEnum(AuthProvider)
   @IsOptional()
   authProvider?: AuthProvider;
+
+  @IsString()
+  @IsOptional()
+  profilePicture?: string;
 }

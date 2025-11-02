@@ -1,4 +1,4 @@
-import { UserEntity } from '../entity/userEntity';
+import { UserEntity } from '../entity/user.entity';
 import { CreateUserDTO, UpdateUserDTO } from '../dto';
 
 export interface IUserService {

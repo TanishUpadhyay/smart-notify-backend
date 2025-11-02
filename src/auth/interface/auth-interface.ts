@@ -1,4 +1,4 @@
-import { User } from 'src/users/users.service';
+import { UserEntity } from 'src/users/entity/user.entity';
 import { RegisterDTO } from '../dto/registerDTO';
 
 export interface GoogleUserData {
@@ -17,40 +17,40 @@ export interface IAuthenticationService {
    * @returns The user object without the password hash.
    * @throws UnauthorizedException if the credentials are invalid.
    */
-  validateUser(email: string, password: string): Promise<User>;
+  validateUser(email: string, password: string): Promise<UserEntity>;
 
   /**
    * Logs in the user and generates a JWT token.
    * @param user - The validated user object.
    * @returns An object containing the access token.
    */
-  login(user: User): Promise<{ access_token: string }>;
+  login(user: UserEntity): Promise<{ access_token: string }>;
 
   /**
    * Registers a new user.
    * @param registerDto - The registration data transfer object.
    * @returns The created user entity.
    */
-  register(registerDto: RegisterDTO): Promise<User>;
+  register(registerDto: RegisterDTO): Promise<UserEntity>;
 
   /**
    * Validates or creates a user from Google profile data.
    * @param googleData - User data from Google
    * @returns The user object
    */
-  validateGoogleUser(googleData: GoogleUserData): Promise<User>;
+  validateGoogleUser(googleData: GoogleUserData): Promise<UserEntity>;
 
   /**
    * Sends a password reset email to the user.
    * @param email - User's email address.
    * @returns A confirmation message.
    */
-  forgotPassword(email: string): Promise<void>;
+  // forgotPassword(email: string): Promise<void>;
 
   /**
    * Resets the user's password.
    * @param token - The password reset token.
    * @param newPassword - The new password.
    */
-  resetPassword(token: string, newPassword: string): Promise<void>;
+  //resetPassword(token: string, newPassword: string): Promise<void>;
 }
