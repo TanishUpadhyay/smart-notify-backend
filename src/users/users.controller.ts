@@ -29,7 +29,7 @@ export class UsersController {
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  async getUserByID(@Param('id') id: string) {
+  async getUserByID(@Param('id') id: number) {
     const user = await this.userService.getUserById(id);
     return plainToInstance(CreateUserDTO, user, {
       excludeExtraneousValues: true
@@ -40,7 +40,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async updateUserProfile(
-    @Param('id') id: string,
+    @Param('id') id: number,
     @Body() updateUserDTO: UpdateUserDTO
   ) {
     const updatedUser = await this.userService.updateUser(id, updateUserDTO);

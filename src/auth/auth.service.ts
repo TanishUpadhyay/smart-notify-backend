@@ -19,6 +19,7 @@ import { ConfigService } from '@nestjs/config';
 import { InjectLogger } from 'src/common/Logger';
 import { Logger } from 'winston';
 import { OAuth2Client } from 'google-auth-library';
+import { CONFIG_DICTIONARY } from 'src/config/constants';
 
 @Injectable()
 export class AuthService implements IAuthenticationService {
@@ -127,7 +128,7 @@ export class AuthService implements IAuthenticationService {
           );
           //update user with googleId
           user = await this.usersService.updateUserGoogleInfo(
-            user.id.toString(),
+            user.id,
             googleData.googleId,
             AuthProvider.GOOGLE
           );
@@ -143,6 +144,62 @@ export class AuthService implements IAuthenticationService {
     } catch (error) {
       this.logger.error(`Error validating Google user: ${error}`);
       throw new Error('Error validating Google user');
+    }
+  }
+
+  async loginWithGoogleAuthCode(authCode: string): Promise<{ token: string }> {
+    this.logger.debug('Processing Google auth code login');
+
+    try {
+      // Exchange auth code for tokens
+      const { tokens } = await this.oauth2client.getToken(authCode);
+
+      if (!tokens.id_token) {
+        throw new UnauthorizedException('No ID token received from Google');
+      }
+
+      // Verify the ID token
+      const ticket = await this.oauth2client.verifyIdToken({
+        idToken: tokens.id_token,
+        audience: this.configService.get<string>(
+          CONFIG_DICTIONARY.GOOGLE_CLIENT_ID
+        )
+      });
+
+      const payload = ticket.getPayload();
+      if (!payload) {
+        throw new UnauthorizedException('Invalid Google ID token');
+      }
+
+      if (!payload.email_verified) {
+        throw new UnauthorizedException('Google email not verified');
+      }
+
+      // Map Google user data
+      const googleUserData: GoogleUserData = {
+        email: payload.email!,
+        firstName: payload.given_name || '',
+        lastName: payload.family_name || '',
+        profilePicture: payload.picture,
+        googleId: payload.sub
+      };
+
+      // Validate or create user
+      const user = await this.validateGoogleUser(googleUserData);
+
+      // Generate application JWT
+      const result = await this.login(user);
+
+      return { token: result.access_token };
+    } catch (error) {
+      this.logger.error(
+        `Google auth code login failed: ${error.message}`,
+        error.stack
+      );
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      throw new UnauthorizedException('Failed to authenticate with Google');
     }
   }
   // forgotPassword(email: string): Promise<void> {

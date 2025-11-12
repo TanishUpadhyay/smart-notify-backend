@@ -15,7 +15,7 @@ import { UsersService } from 'src/users/users.service';
   imports: [
     UsersModule,
     ConfigModule,
-    PassportModule,
+    PassportModule.register({ session: false }),
     UsersModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],

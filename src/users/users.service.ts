@@ -68,7 +68,7 @@ export class UsersService implements IUserService {
     }
   }
 
-  async getUserById(userId: string): Promise<UserEntity> {
+  async getUserById(userId: number): Promise<UserEntity> {
     try {
       return await this.userRepository
         .createQueryBuilder('user')
@@ -99,7 +99,7 @@ export class UsersService implements IUserService {
   }
 
   async updateUser(
-    userId: string,
+    userId: number,
     updateUserDTO: UpdateUserDTO
   ): Promise<UserEntity> {
     try {
@@ -152,12 +152,12 @@ export class UsersService implements IUserService {
     }
   }
 
-  async getUserWithGoogleId(googleId: string): Promise<UserEntity> {
+  async getUserWithGoogleId(googleId: string): Promise<UserEntity | null> {
     try {
       return await this.userRepository
         .createQueryBuilder('user')
         .where('user.googleId = :googleId', { googleId })
-        .getOneOrFail();
+        .getOne();
     } catch (error) {
       this.logger.error(
         `Error fetching user by Google ID ${error.message}`,
@@ -170,7 +170,7 @@ export class UsersService implements IUserService {
   }
 
   async updateUserGoogleInfo(
-    userId: string,
+    userId: number,
     googleId: string,
     provider: AuthProvider
   ): Promise<UserEntity> {

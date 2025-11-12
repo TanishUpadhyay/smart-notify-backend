@@ -1,23 +1,17 @@
+import { Expose, Transform } from 'class-transformer';
+
 export class UserResponseDTO {
-  id: string;
-  email: string;
-  firstName?: string;
-  lastName?: string;
-  fullName?: string;
-  profileImage?: string;
-  roles: string[];
-  isActive: boolean;
+  @Expose() id: string;
+  @Expose() email: string;
+  @Expose() username?: string;
+  @Expose() profileImage?: string;
+  @Expose() roles: string[];
+  @Expose() isActive: boolean;
 
   constructor(partial: Partial<UserResponseDTO> = {}) {
     this.id = partial.id ?? '';
     this.email = partial.email ?? '';
-    this.firstName = partial.firstName;
-    this.lastName = partial.lastName;
-    this.fullName =
-      partial.fullName ??
-      (this.firstName || this.lastName
-        ? [this.firstName, this.lastName].filter(Boolean).join(' ')
-        : undefined);
+    this.username = partial.username;
     this.profileImage = partial.profileImage;
     this.roles = partial.roles ?? [];
     this.isActive = partial.isActive ?? true;

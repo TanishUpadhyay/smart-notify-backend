@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 // auth/google.strategy.ts
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, VerifyCallback } from 'passport-google-oauth20';
@@ -30,8 +32,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       clientID,
       clientSecret,
       callbackURL,
-      scope: ['email', 'profile'],
-      passReqToCallback: true
+      scope: ['email', 'profile']
+      //passReqToCallback: true
     });
   }
 
@@ -41,7 +43,16 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     profile: any,
     done: VerifyCallback
   ): Promise<any> {
-    const user = await this.authService.validateGoogleUser(profile);
+    console.log('Google profile:', profile);
+    const { name, emails, photos } = profile;
+    const user = await this.authService.validateGoogleUser({
+      email: emails[0].value,
+      firstName: name.givenName,
+      lastName: name.familyName,
+      profilePicture: photos[0]?.value,
+      googleId: profile.id
+    });
+    console.log('Validated Google user:', user);
     done(null, user);
   }
 }
