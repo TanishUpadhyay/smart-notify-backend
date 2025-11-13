@@ -13,7 +13,6 @@ import { Logger } from 'winston';
 import { InjectLogger } from 'src/common/Logger';
 import { AuthProvider } from './entity/user.entity';
 // This should be a real class/interface representing a user entity
-export type User = any;
 
 @Injectable()
 export class UsersService implements IUserService {
