@@ -9,6 +9,7 @@ import winston from 'winston';
 import { CONFIG_DICTIONARY } from './config/constants';
 import { WinstonModule } from 'nest-winston';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { TokensModule } from './tokens/tokens.module';
 
 @Module({
   imports: [
@@ -62,7 +63,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         //     : null
       }),
       inject: [ConfigService]
-    })
+    }),
+    TokensModule
   ],
   controllers: [AppController],
   providers: [AppService]

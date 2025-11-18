@@ -7,12 +7,14 @@ import { Injectable } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import { CONFIG_DICTIONARY } from 'src/config/constants';
 import { ConfigService } from '@nestjs/config';
+import { TokensService } from 'src/tokens/tokens.service';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   constructor(
     configService: ConfigService,
-    private authService: AuthService
+    private authService: AuthService,
+    private tokenService: TokensService
   ) {
     const clientID = configService.get<string>(
       CONFIG_DICTIONARY.GOOGLE_CLIENT_ID
@@ -32,7 +34,14 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       clientID,
       clientSecret,
       callbackURL,
-      scope: ['email', 'profile']
+      scope: [
+        'email',
+        'profile',
+        'openid',
+        'https://www.googleapis.com/auth/gmail.readonly'
+      ],
+      prompt: 'consent',
+      accessType: 'offline'
       //passReqToCallback: true
     });
   }
@@ -53,6 +62,17 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       googleId: profile.id
     });
     console.log('Validated Google user:', user);
+    const token = await this.tokenService.saveToken({
+      user,
+      provider: 'google',
+      accessToken,
+      refreshToken,
+      expiryDate: new Date(Date.now() + 3600 * 1000) // assuming 1 hour expiry
+    });
+    if (!token) {
+      console.error('Failed to save Google token for user:', user.id);
+      throw new Error('Failed to save Google token');
+    }
     done(null, user);
   }
 }
