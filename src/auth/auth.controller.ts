@@ -80,7 +80,7 @@ export class AuthController {
       const user = plainToInstance(UserResponseDTO, request.user, {
         excludeExtraneousValues: true
       });
-      this.logger.debug(`user DTO created for user ${user}.`);
+      //this.logger.debug(`user DTO created for user ${user}.`);
       this.logger.debug(`user DTO created for user email  ${user.email}.`);
       const clientUrl = this.configService.get<string>(
         CONFIG_DICTIONARY.FRONTEND_URL

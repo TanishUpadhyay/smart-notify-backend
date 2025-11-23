@@ -11,6 +11,10 @@ export class GoogleGuard extends AuthGuard('google') {
   // For the initial redirect and the callback route this guard can be reused.
   // Override canActivate if you need to add extra checks before Passport runs.
 
+  constructor() {
+    super({ prompt: 'consent', accessType: 'offline' });
+  }
+
   async canActivate(context: ExecutionContext) {
     // run passport authentication
     const CanActivate = (await super.canActivate(context)) as boolean;
