@@ -10,6 +10,7 @@ import { CONFIG_DICTIONARY } from './config/constants';
 import { WinstonModule } from 'nest-winston';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EventsModule } from './events/events.module';
+import { TokensModule } from './tokens/tokens.module';
 
 @Module({
   imports: [
@@ -64,7 +65,8 @@ import { EventsModule } from './events/events.module';
       }),
       inject: [ConfigService]
     }),
-    EventsModule
+    EventsModule,
+    TokensModule
   ],
   controllers: [AppController],
   providers: [AppService]
