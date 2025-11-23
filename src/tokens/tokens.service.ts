@@ -9,6 +9,7 @@ import { InjectLogger } from 'src/common/Logger';
 import { Logger } from 'winston';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
+import { CONFIG_DICTIONARY } from 'src/config/constants';
 
 @Injectable()
 export class TokensService {
@@ -94,11 +95,13 @@ export class TokensService {
       const params = new URLSearchParams();
       params.append(
         'client_id',
-        this.configService.get<string>('GOOGLE_CLIENT_ID') || ''
+        this.configService.get<string>(CONFIG_DICTIONARY.GOOGLE_CLIENT_ID) || ''
       );
       params.append(
         'client_secret',
-        this.configService.get<string>('GOOGLE_CLIENT_SECRET') || ''
+        this.configService.get<string>(
+          CONFIG_DICTIONARY.GOOGLE_CLIENT_SECRET
+        ) || ''
       );
       params.append('refresh_token', token.refreshToken);
       params.append('grant_type', 'refresh_token');
