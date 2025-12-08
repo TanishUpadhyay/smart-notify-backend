@@ -1,9 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, Index } from 'typeorm';
 
 @Entity('events')
 export class EventEntity {
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   @Column({ type: 'varchar', length: 255 })
   source: string; // e.g., "gmail","github" etc.
@@ -25,4 +25,14 @@ export class EventEntity {
 
   @Column({ type: 'text' })
   content: string;
+
+  @Column()
+  userId: string; // whose event is this
+
+  @Column()
+  providerMessageId: string; // unique ID from Gmail/GitHub etc.
+
+  @Index()
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
 }

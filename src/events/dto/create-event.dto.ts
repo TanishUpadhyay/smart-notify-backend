@@ -29,4 +29,14 @@ export class CreateEventDTO {
   @IsNotEmpty()
   @IsString()
   content: string;
+
+  @Expose()
+  @IsNotEmpty()
+  @IsString()
+  userId: string; // whose event is this
+
+  @Expose()
+  @IsNotEmpty()
+  @IsString()
+  providerMessageId: string; // unique ID from Gmail/GitHub etc.
 }
